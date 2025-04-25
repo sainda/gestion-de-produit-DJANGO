@@ -1,0 +1,79 @@
+{% extends 'products/base.html' %}
+
+{% block title %}Liste des Produits{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h1>Liste des Produits</h1>
+    </div>
+    <div class="col-md-6">
+        <form class="d-flex" method="GET" action="{% url 'product_search' %}">
+            <input class="form-control me-2" type="search" name="q" placeholder="Rechercher un produit..." value="{{ query }}">
+            <button class="btn btn-outline-primary" type="submit">Rechercher</button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% for product in page_obj %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top product-image" alt="{{ product.name }}">
+            {% else %}
+            <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+                <p class="card-text">
+                    <strong>Prix:</strong> {{ product.price }} €<br>
+                    <strong>Quantité:</strong> {{ product.quantity }}
+                </p>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'product_update' product.pk %}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Supprimer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            Aucun produit trouvé.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %} 
